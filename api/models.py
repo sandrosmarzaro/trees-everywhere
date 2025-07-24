@@ -1,21 +1,26 @@
 from __future__ import annotations
 
-import uuid
 from datetime import timezone
 from decimal import Decimal
+from typing import Any
 
+import uuid6
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
 
 
+class UUIDv7Field(models.UUIDField):
+    def __init__(self, *args: tuple, **kwargs: dict[str, Any]) -> None:
+        kwargs.setdefault('default', uuid6.uuid7)
+        kwargs.setdefault('editable', False)
+        kwargs.setdefault('unique', True)
+        super().__init__(*args, **kwargs)
+
+
 class Account(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid7,
-        editable=False,
-    )
+    id = UUIDv7Field(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
@@ -28,11 +33,7 @@ class Account(models.Model):
 
 
 class User(AbstractUser):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid7,
-        editable=False,
-    )
+    id = UUIDv7Field(primary_key=True)
     accounts = models.ManyToManyField(
         Account,
         blank=True,
@@ -102,11 +103,7 @@ class User(AbstractUser):
 
 
 class UserAccount(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid7,
-        editable=False,
-    )
+    id = UUIDv7Field(primary_key=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -127,11 +124,7 @@ class UserAccount(models.Model):
 
 
 class Profile(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid7,
-        editable=False,
-    )
+    id = UUIDv7Field(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     about = models.TextField(blank=True, null=True)
     joined = models.DateTimeField(auto_now_add=True)
@@ -144,11 +137,7 @@ class Profile(models.Model):
 
 
 class Tree(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid7,
-        editable=False,
-    )
+    id = UUIDv7Field(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
     scientific_name = models.CharField(max_length=255)
 
@@ -160,11 +149,7 @@ class Tree(models.Model):
 
 
 class PlantedTree(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid7,
-        editable=False,
-    )
+    id = UUIDv7Field(primary_key=True)
     planted_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
