@@ -11,13 +11,16 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-    "ruff>=0.12.5",
-]
+dev = ["ruff>=0.12.5"]
 
 [tool.ruff]
 line-length = 79
-extend-exclude = ['manage.py', 'trees_everywhere/settings.py']
+extend-exclude = [
+    'manage.py',
+    'trees_everywhere/settings.py',
+    'api/admin.py',
+    'api/migrations/',
+]
 
 [tool.ruff.lint]
 preview = true
