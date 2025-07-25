@@ -18,8 +18,8 @@ line-length = 79
 extend-exclude = [
     'manage.py',
     'trees_everywhere/settings.py',
-    'api/admin.py',
-    'api/migrations/',
+    '*/admin.py',
+    '*/migrations/',
 ]
 
 [tool.ruff.lint]
