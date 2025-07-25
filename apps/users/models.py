@@ -1,11 +1,8 @@
-from decimal import Decimal
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from apps.core.fields import UUIDv7Field
-from apps.trees.models import PlantedTree, Tree
 
 
 class Account(models.Model):
@@ -35,60 +32,6 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ['username']
-
-    def plant_tree(
-        self,
-        tree: Tree,
-        location: tuple[Decimal, Decimal],
-        account: Account,
-    ) -> None:
-        """
-        Plants a single tree at a specific location for an account.
-
-        Args:
-            tree: Tree instance to be planted.
-            location: Tuple (latitude, longitude) as Decimal.
-            account: Account associated with the planting.
-
-        Raises:
-            PermissionDenied: If the user does not belong to the account.
-        """
-
-        PlantedTree(
-            user=self,
-            tree=tree,
-            account=account,
-            latitude=location[0],
-            longitude=location[1],
-        ).save()
-
-    def plant_trees(
-        self,
-        plants: list[tuple[Tree, tuple[Decimal, Decimal]]],
-        account: Account,
-    ) -> None:
-        """
-        Plants multiple trees at specified locations for an account.
-
-        Args:
-            plants: List of tuples, where each tuple contains a `Tree`
-            instance and a tuple (latitude, longitude) as `Decimal`.
-            account: Account associated with the tree planting.
-        Raises:
-            PermissionDenied: If the user does not belong to the account.
-        """
-
-        planted_trees_to_create = [
-            PlantedTree(
-                user=self,
-                tree=plant[0],
-                account=account,
-                latitude=plant[1][0],
-                longitude=plant[1][1],
-            )
-            for plant in plants
-        ]
-        PlantedTree.objects.bulk_create(planted_trees_to_create)
 
 
 class UserAccount(models.Model):
