@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from apps.trees.models import Tree
+from apps.trees.models import PlantedTree, Tree
 from apps.trees.services import plant_tree
 from apps.users.models import Account, User
 
@@ -70,6 +70,28 @@ class PlantedTreeViewsTestCase(TestCase):
             latitude=Decimal('55.555555'),
             longitude=Decimal('66.666666'),
         )
+
+    def test_plant_tree_creates_tree_instance(self) -> None:
+        """Plant tree creates a tree instance."""
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('trees:planted-tree-create')
+        data = {
+            'account_id': self.account1.id,
+            'tree_id': self.tree1.id,
+            'latitude': '1.234567',
+            'longitude': '7.654321',
+        }
+        response = self.client.post(url, data)
+
+        assert response.status_code == HTTPStatus.CREATED
+
+        assert PlantedTree.objects.filter(id=response.data['id']).exists()
+        planted_tree = PlantedTree.objects.get(id=response.data['id'])
+        assert planted_tree.user == self.user1
+        assert planted_tree.account == self.account1
+        assert planted_tree.tree == self.tree1
+        assert planted_tree.latitude == Decimal(data['latitude'])
+        assert planted_tree.longitude == Decimal(data['longitude'])
 
     def test_list_my_planted_trees(self) -> None:
         """Authenticated user should see only their own planted trees."""
