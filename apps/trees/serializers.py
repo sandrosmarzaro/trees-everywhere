@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from apps.users.serializers import AccountSerializer, UserSerializer
 
+from . import services
 from .models import Account, PlantedTree, Tree
 
 
@@ -50,5 +51,6 @@ class PlantedTreeSerializer(serializers.ModelSerializer):
             self.fields['account_id'].queryset = request.user.accounts.all()
 
     def create(self, validated_data: dict[str, Any]) -> PlantedTree:
-        validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
+        return services.plant_tree(
+            user=self.context['request'].user, **validated_data
+        )
