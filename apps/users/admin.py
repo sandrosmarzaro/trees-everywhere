@@ -27,7 +27,8 @@ class UserAdmin(BaseUserAdmin):
 class AccountAdmin(admin.ModelAdmin):
     list_display = ('name', 'created', 'active')
     list_filter = ('active',)
-    search_fields = ('name',)
+    search_fields = ('name', 'users__username')
+    inlines = [UserAccountInline]
     actions = ['activate_accounts', 'deactivate_accounts']
 
     @admin.action(description='Activate selected accounts')
