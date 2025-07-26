@@ -48,7 +48,11 @@ class PlantedTreeSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         request = self.context.get('request')
-        if request and hasattr(request, 'user'):
+        if (
+            request
+            and hasattr(request, 'user')
+            and request.user.is_authenticated
+        ):
             self.fields['account_id'].queryset = request.user.accounts.all()
 
     def create(self, validated_data: dict[str, Any]) -> PlantedTree:
@@ -72,7 +76,11 @@ class PlantedTreeListSerializer(serializers.Serializer):
     def __init__(self, *args: tuple, **kwargs: dict[str, Any]) -> None:
         super().__init__(*args, **kwargs)
         request = self.context.get('request')
-        if request and hasattr(request, 'user'):
+        if (
+            request
+            and hasattr(request, 'user')
+            and request.user.is_authenticated
+        ):
             self.fields['account_id'].queryset = request.user.accounts.all()
 
     def create(self, validated_data: dict[str, Any]) -> list[PlantedTree]:
