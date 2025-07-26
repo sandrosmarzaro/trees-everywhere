@@ -1,3 +1,4 @@
+from decimal import Decimal
 from http import HTTPStatus
 from uuid import UUID
 
@@ -5,7 +6,8 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from apps.trees.models import PlantedTree, Tree
+from apps.trees.models import Tree
+from apps.trees.services import plant_tree
 from apps.users.models import Account, User
 
 
@@ -36,50 +38,38 @@ class PlantedTreeViewsTestCase(TestCase):
         )
 
         self.client = APIClient()
-        url = reverse('trees:planted-tree-create')
 
-        self.client.force_authenticate(user=self.user1)
-        data = {
-            'account_id': self.account1.id,
-            'tree_id': self.tree1.id,
-            'latitude': '12.345678',
-            'longitude': '-12.345678',
-        }
-        response = self.client.post(url, data)
-        assert response.status_code == HTTPStatus.CREATED
-        self.user1_tree1 = PlantedTree.objects.get(id=response.data['id'])
+        self.user1_tree1 = plant_tree(
+            user=self.user1,
+            account=self.account1,
+            tree=self.tree1,
+            latitude=Decimal('12.345678'),
+            longitude=Decimal('-12.345678'),
+        )
 
-        data = {
-            'account_id': self.account1.id,
-            'tree_id': self.tree2.id,
-            'latitude': '11.111111',
-            'longitude': '22.222222',
-        }
-        response = self.client.post(url, data)
-        assert response.status_code == HTTPStatus.CREATED
-        self.user1_tree2 = PlantedTree.objects.get(id=response.data['id'])
+        self.user1_tree2 = plant_tree(
+            user=self.user1,
+            account=self.account1,
+            tree=self.tree2,
+            latitude=Decimal('11.111111'),
+            longitude=Decimal('22.222222'),
+        )
 
-        self.client.force_authenticate(user=self.user2)
-        data = {
-            'account_id': self.account1.id,
-            'tree_id': self.tree1.id,
-            'latitude': '33.333333',
-            'longitude': '44.444444',
-        }
-        response = self.client.post(url, data)
-        assert response.status_code == HTTPStatus.CREATED
-        self.user2_tree = PlantedTree.objects.get(id=response.data['id'])
+        self.user2_tree = plant_tree(
+            user=self.user2,
+            account=self.account1,
+            tree=self.tree1,
+            latitude=Decimal('33.333333'),
+            longitude=Decimal('44.444444'),
+        )
 
-        self.client.force_authenticate(user=self.user3)
-        data = {
-            'account_id': self.account2.id,
-            'tree_id': self.tree2.id,
-            'latitude': '55.555555',
-            'longitude': '66.666666',
-        }
-        response = self.client.post(url, data)
-        assert response.status_code == HTTPStatus.CREATED
-        self.user3_tree = PlantedTree.objects.get(id=response.data['id'])
+        self.user3_tree = plant_tree(
+            user=self.user3,
+            account=self.account2,
+            tree=self.tree2,
+            latitude=Decimal('55.555555'),
+            longitude=Decimal('66.666666'),
+        )
 
     def test_list_my_planted_trees(self) -> None:
         """Authenticated user should see only their own planted trees."""
