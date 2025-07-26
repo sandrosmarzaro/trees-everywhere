@@ -2,10 +2,11 @@ from typing import Any
 
 from rest_framework import serializers
 
+from apps.users.models import Account
 from apps.users.serializers import AccountSerializer, UserSerializer
 
 from . import services
-from .models import Account, PlantedTree, Tree
+from .models import PlantedTree, Tree
 
 
 class TreeSerializer(serializers.ModelSerializer):
