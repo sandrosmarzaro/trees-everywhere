@@ -1,9 +1,11 @@
 from django.conf import settings
-from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
 from django.utils import timezone
 
 from apps.core.fields import UUIDv7Field
+
+from .managers import PlantedTreeManager
+from .validators import validate_latitude, validate_longitude
 
 
 class Tree(models.Model):
@@ -32,33 +34,22 @@ class PlantedTree(models.Model):
     account = models.ForeignKey(
         'users.Account', on_delete=models.CASCADE, related_name='planted_trees'
     )
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        validators=[validate_latitude],
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        validators=[validate_longitude],
+    )
+
+    objects = PlantedTreeManager()
 
     @property
     def age(self) -> int:
         return timezone.now().year - self.planted_at.year
-
-    def clean(self) -> None:
-        super().clean()
-
-        MAX_LATITUDE = 90
-        MAX_LONGITUDE = 180
-
-        if self.latitude is not None and not (
-            -MAX_LATITUDE <= self.latitude <= MAX_LATITUDE
-        ):
-            raise ValidationError('Latitude must be between -90 and 90')
-        if self.longitude is not None and not (
-            -MAX_LONGITUDE <= self.longitude <= MAX_LONGITUDE
-        ):
-            raise ValidationError('Longitude must be between -180 and 180.')
-
-        if hasattr(self, 'user') and hasattr(self, 'account'):
-            if self.account not in self.user.accounts.all():
-                raise PermissionDenied(
-                    'User does not belong to the selected account.'
-                )
 
     def __str__(self) -> str:
         return f'{self.tree.name} planted by {self.user.username}'

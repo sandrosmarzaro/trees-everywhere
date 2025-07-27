@@ -18,9 +18,9 @@ class PlantedTreeListByUserAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self) -> QuerySet[PlantedTree]:
-        return PlantedTree.objects.filter(
-            user=self.request.user
-        ).select_related('user', 'tree', 'account')
+        return PlantedTree.objects.for_user(self.request.user).select_related(
+            'user', 'tree', 'account'
+        )
 
 
 class PlantedTreeAPIView(generics.RetrieveAPIView):
@@ -46,9 +46,9 @@ class PlantedTreeListByAccountsAPIView(generics.ListAPIView):
     def get_queryset(self) -> QuerySet[PlantedTree]:
         user = self.request.user
         user_accounts = user.accounts.all()
-        return PlantedTree.objects.filter(
-            account__in=user_accounts
-        ).select_related('user', 'tree', 'account')
+        return PlantedTree.objects.for_accounts(user_accounts).select_related(
+            'user', 'tree', 'account'
+        )
 
 
 class TreeListCreateAPIView(generics.ListCreateAPIView):
