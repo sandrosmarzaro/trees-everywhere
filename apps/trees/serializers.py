@@ -15,6 +15,22 @@ class TreeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'scientific_name')
 
 
+class CurrentUserAccountPrimaryKeyRelatedField(
+    serializers.PrimaryKeyRelatedField
+):
+    """PrimaryKeyRelatedField that limits queryset to the current accounts."""
+
+    def get_queryset(self) -> Account:
+        request = self.context.get('request')
+        if (
+            request is not None
+            and hasattr(request, 'user')
+            and request.user.is_authenticated
+        ):
+            return request.user.accounts.all()
+        return Account.objects.none()
+
+
 class PlantedTreeSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     tree = TreeSerializer(read_only=True)
@@ -24,7 +40,7 @@ class PlantedTreeSerializer(serializers.ModelSerializer):
     tree_id = serializers.PrimaryKeyRelatedField(
         queryset=Tree.objects.all(), source='tree', write_only=True
     )
-    account_id = serializers.PrimaryKeyRelatedField(
+    account_id = CurrentUserAccountPrimaryKeyRelatedField(
         queryset=Account.objects.none(), source='account', write_only=True
     )
 
@@ -44,17 +60,6 @@ class PlantedTreeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('planted_at', 'age', 'user')
 
-    def __init__(self, *args: tuple, **kwargs: dict[str, Any]) -> None:
-        super().__init__(*args, **kwargs)
-
-        request = self.context.get('request')
-        if (
-            request
-            and hasattr(request, 'user')
-            and request.user.is_authenticated
-        ):
-            self.fields['account_id'].queryset = request.user.accounts.all()
-
     def create(self, validated_data: dict[str, Any]) -> PlantedTree:
         return services.plant_tree(
             user=self.context['request'].user, **validated_data
@@ -69,19 +74,9 @@ class PlantedTreeItemSerializer(serializers.Serializer):
 
 class PlantedTreeListSerializer(serializers.Serializer):
     plants = PlantedTreeItemSerializer(many=True)
-    account_id = serializers.PrimaryKeyRelatedField(
+    account_id = CurrentUserAccountPrimaryKeyRelatedField(
         queryset=Account.objects.none(), write_only=True
     )
-
-    def __init__(self, *args: tuple, **kwargs: dict[str, Any]) -> None:
-        super().__init__(*args, **kwargs)
-        request = self.context.get('request')
-        if (
-            request
-            and hasattr(request, 'user')
-            and request.user.is_authenticated
-        ):
-            self.fields['account_id'].queryset = request.user.accounts.all()
 
     def create(self, validated_data: dict[str, Any]) -> list[PlantedTree]:
         account = validated_data['account_id']
