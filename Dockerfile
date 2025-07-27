@@ -6,19 +6,19 @@ RUN pip install uv
 
 COPY pyproject.toml uv.lock* ./
 
-RUN uv venv /app/venv && \
-    . /app/venv/bin/activate && \
+RUN uv venv /venv && \
+    . /venv/bin/activate && \
     uv pip install -r pyproject.toml
 
 FROM python:3.13-alpine AS final
 
 RUN apk add --no-cache bash git
 
-COPY --from=builder /app/venv /app/venv
+COPY --from=builder /venv /venv
 
 COPY . .
 
-ENV PATH="/app/venv/bin:$PATH"
+ENV PATH="/venv/bin:$PATH"
 
 EXPOSE 8000
 
