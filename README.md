@@ -17,7 +17,7 @@ Trees Everywhere is a lightweight Django application that enables volunteers aro
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/trees-everywhere.git
+git clone https://github.com/sandrosmarzaro/trees-everywhere.git
 cd trees-everywhere
 ```
 
