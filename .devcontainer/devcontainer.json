@@ -1,8 +1,10 @@
 {
     "name": "Trees Everywhere",
-    "dockerComposeFile": "docker-compose.yml",
-    "service": "dev",
-    "workspaceFolder": "/workspace",
+    "dockerComposeFile": [
+        "../docker-compose.yml"
+    ],
+    "service": "app",
+    "workspaceFolder": "/app",
     "forwardPorts": [
         8000
     ],
