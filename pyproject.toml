@@ -32,8 +32,3 @@ select = ['I', 'F', 'E', 'W', 'PL', 'PT', 'ANN']
 [tool.ruff.format]
 preview = true
 quote-style = 'single'
-
-[tool.pytest.ini_options]
-pythonpath = '.'
-addopts = '-p no:warnings'
-asyncio_default_fixture_loop_scope = 'function'

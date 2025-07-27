@@ -9,7 +9,7 @@ Trees Everywhere is a lightweight Django application that enables volunteers aro
 - [Django REST Framework](https://www.django-rest-framework.org/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Pytest](https://docs.pytest.org/)
+- [Django's Test](https://docs.djangoproject.com/en/5.2/topics/testing/tools/)
 - [Ruff](https://docs.astral.sh/ruff/)
 
 ## Getting Started
@@ -57,7 +57,7 @@ docker compose exec app python manage.py createsuperuser
 ### 5. Run the tests
 
 ```bash
-docker compose exec app pytest
+docker compose exec app python manage.py test
 ```
 
 ### 6. API documentation
